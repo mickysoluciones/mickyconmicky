@@ -1,26 +1,1020 @@
-@import "tailwindcss";
-
+/* ========================================================
+   VARIABLES DE DISEÑO JAPANDI & NEUTROS PREMUM
+   ======================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-principal: #f7f4ef;
+  --card-bg: #ffffff;
+  --texto-oscuro: #2d2b2a;
+  --texto-suave: #6b6661;
+  --acento-romantico: #d4a373;
+  --acento-rosa-viejo: #e0a96d;
+  --borde-sutil: #eae5db;
+  --shadow-premium: 0 12px 40px rgba(45, 43, 42, 0.06);
+  
+  /* NUEVO COLOR: Verde Olivo Orgánico de tu imagen */
+  --verde-premium: #556046; 
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Base de la Aplicación */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-principal);
+  color: var(--texto-oscuro);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 440px; /* Ancho perfecto simulando un teléfono móvil */
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+/* ========================================================
+   COMPONENTES REUTILIZABLES (TARJETAS Y BOTONES)
+   ======================================================== */
+.card-pantalla {
+  background: var(--card-bg);
+  border: 1px solid var(--borde-sutil);
+  border-radius: 16px;
+  padding: 35px 24px;
+  width: 100%;
+  box-shadow: var(--shadow-premium);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s ease;
+}
+
+/* Títulos y textos */
+h2 {
+  font-family: 'Georgia', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--texto-oscuro);
+  margin-bottom: 12px;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.pregunta-texto {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--texto-suave);
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+/* HOMOLOGACIÓN TOTAL DE BOTONES: Misma altura, padding y curva en toda la app */
+.btn-principal, .feed-actions-scroll-natural .btn-principal, .btn-si {
+  background-color: var(--verde-premium) !important; /* Cambia negro por el verde que mandaste */
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 30px !important;
+  height: 50px !important; /* Forzamos la misma altura exacta para todos los botones principales */
+  padding: 0 28px !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  width: 100% !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(85, 96, 70, 0.15) !important;
+  text-decoration: none !important;
+}
+
+.btn-principal:hover, .btn-principal:active, .btn-si:hover {
+  background-color: #434c37 !important; /* Un tono un poquito más oscuro al presionar */
+  transform: translateY(-1px) !important;
+}
+
+.opciones-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-opcion {
+  background-color: #faf9f6;
+  border: 1px solid var(--borde-sutil);
+  color: var(--texto-oscuro);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.btn-opcion:hover, .btn-opcion:active {
+  background-color: #ffffff;
+  border-color: var(--acento-romantico);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+/* ========================================================
+   FASE 1: CASCADA DE LA BIENVENIDA FLUIDA
+   ======================================================== */
+.card-inicio-premium {
+  padding: 45px 30px !important;
+  min-height: 480px;
+  justify-content: center;
+}
+
+.saludo-inicio {
+  font-family: 'Georgia', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--texto-oscuro);
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.carta-introduccion {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.bloque-oraciones {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 1.02rem;
+}
+
+.frase-css {
+  display: inline;
+  color: var(--texto-oscuro);
+  opacity: 0;
+  filter: blur(8px);
+  animation: aparecerFraseSuave 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Ajuste de tiempos para el nuevo texto coreografiado */
+.f-1 { animation-delay: 0.3s; }   /* Sé que te lastimé... */
+.f-2 { animation-delay: 3.2s; }   /* Pero más de 8 años... */
+.f-3 { animation-delay: 6.2s; }   /* Diseñé este espacio... */
+.f-4 { animation-delay: 8.5s; }   /* para recordar quiénes somos... */
+.f-5 { animation-delay: 11.2s; }  /* y volver a construir el futuro... (Destacada) */
+.destacada-frase {
+  font-weight: 600;
+  color: var(--acento-romantico);
+  font-style: italic;
+}
+
+/* El botón y tu firma aparecen al final de toda la secuencia */
+.bloque-firma-accion {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  filter: blur(4px);
+  animation: aparecerFraseSuave 1.2s ease-out 13.5s forwards; /* Aparece a los 13.5 segundos */
+}
+
+.firma-remitente {
+  font-family: 'Georgia', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--texto-suave);
+  text-align: right;
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+@keyframes aparecerFraseSuave {
+  0% { opacity: 0; filter: blur(8px); transform: translateY(4px); }
+  100% { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
+/* ========================================================
+   FASE 2: REPRODUCTOR DE MÚSICA (ESTILO MINIMALISTA)
+   ======================================================== */
+.btn-cancion-selector {
+  display: grid !important;
+  grid-template-columns: 32px 1fr !important; /* Columna fija para el logo y el resto para el texto */
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 14px 24px !important;
+  text-align: left !important;
+  border-radius: 30px !important; /* Mantiene la redondez homogénea pill shape */
+}
+
+.disco-icon {
+  font-size: 1.4rem;
+  opacity: 0.7;
+}
+
+.texto-cancion-btn {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+.texto-cancion-btn strong {
+  display: block !important;
+  font-size: 0.98rem !important;
+  color: var(--texto-oscuro) !important;
+  line-height: 1.3 !important;
+}
+
+.texto-cancion-btn span {
+  font-size: 0.82rem !important;
+  color: var(--texto-suave) !important;
+  line-height: 1.2 !important;
+}
+
+.premium-player-card {
+  align-items: center;
+}
+
+.player-big-cover-box {
+  width: 180px;
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 20px 0;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  border: 1px solid var(--borde-sutil);
+}
+
+.player-big-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-track-details {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.player-big-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--texto-oscuro);
+}
+
+.player-big-artist {
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+
+.expanded-spotify-block {
+  width: 100%;
+  background: #faf9f6;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--borde-sutil);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.big-play-btn {
+  background: var(--texto-oscuro);
+  color: #fff;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.spotify-progress-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.spotify-progress-bar {
+  width: 100%;
+  accent-color: var(--texto-oscuro);
+  height: 4px;
+  cursor: pointer;
+}
+
+.time-labels-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+
+/* ========================================================
+   FASE 3, 4 y 5: GALERÍA DE POLAROIDS DESLIZABLE
+   ======================================================== */
+.card-feed-polaroids {
+  max-height: 82vh;
+  padding: 30px 20px 15px 20px !important;
+}
+
+.feed-header {
+  margin-bottom: 10px;
+}
+
+.contenedor-scroll-polaroids {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  padding: 20px 5px 25px 5px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Escondemos barra de scroll */
+.contenedor-scroll-polaroids::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* Estructura Física Polaroid */
+.polaroid-física {
+  width: 285px;
+  background: #ffffff;
+  padding: 12px 12px 22px 12px;
+  border-radius: 2px;
+  box-shadow: 0 10px 30px rgba(45, 43, 42, 0.08);
+  border: 1px solid #f2edd3; /* Tono papel antiguo sutil */
+  position: relative;
+  transform: rotate(var(--angulo-random, 1deg));
+}
+
+.masking-tape {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 75px;
+  height: 22px;
+  background-color: rgba(234, 229, 219, 0.7); /* Cinta washi tape transparente */
+  backdrop-filter: blur(1px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.polaroid-física img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+.polaroid-caption {
+  font-family: 'Georgia', serif;
+  font-size: 1rem;
+  color: #3d3a38;
+  margin-top: 14px;
+  text-align: center;
+  font-style: italic;
+}
+
+.feed-actions-scroll-natural {
+  position: relative !important;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 30px 0 60px 0;
+}
+
+/* ========================================================
+   FASE 6: EL BOTÓN QUE HUYE (CONTENEDOR)
+   ======================================================== */
+.contenedor-botones-huye {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  position: relative;
+  min-height: 60px;
+}
+
+.btn-si {
+  background-color: #2a4736; /* Verde bosque zen suave */
+  color: #ffffff;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.btn-no {
+  background-color: #e5e0d8 !important;
+  color: var(--texto-suave) !important;
+  border: none !important;
+  border-radius: 30px !important; /* Misma redondez */
+  height: 50px !important;        /* Misma altura exacta que el verde */
+  padding: 0 28px !important;
+  font-size: 0.95rem !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  cursor: pointer !important;
+}
+
+/* ========================================================
+   FASE FINAL: LA INVITACIÓN / PACTO PREMIUM
+   ======================================================== */
+.boda-template {
+  width: 100%;
+}
+
+.boda-marco {
+  background: #ffffff;
+  border: 1px solid var(--borde-sutil);
+  border-radius: 16px;
+  padding: 40px 24px;
+  text-align: center;
+  box-shadow: var(--shadow-premium);
+  position: relative;
+}
+
+.boda-badge {
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: var(--acento-romantico);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.boda-titulo {
+  font-family: 'Georgia', serif;
+  font-size: 2rem;
+  color: var(--texto-oscuro);
+  margin-bottom: 15px;
+}
+
+.boda-manifiesto {
+  font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--texto-suave);
+  margin-bottom: 30px;
+  padding: 0 10px;
+}
+
+.boda-detalles h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.selector-fecha-box {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.selector-fecha-box label {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+.input-fecha {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--borde-sutil);
+  background-color: #faf9f6;
+  font-size: 0.95rem;
+  color: var(--texto-oscuro);
+  width: 100%;
+  accent-color: var(--texto-oscuro);
+}
+
+.confirmacion-boda {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f3ece3;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  color: #5c534c;
+  line-height: 1.5;
+}
+
+/* ========================================================
+   REESTRUCTURACIÓN COMPLETA DEL REPRODUCTOR FLOTANTE
+   ======================================================== */
+.spotify-player {
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 30px);
+  max-width: 410px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(234, 229, 219, 0.8);
+  border-radius: 20px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 35px rgba(45, 43, 42, 0.1);
+  z-index: 100;
+}
+
+/* ========================================================
+   REPRODUCTOR LINEAL PRESET JAPANDI (ALTURA DE LA PORTADA)
+   ======================================================== */
+.spotify-player-lineal {
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 415px;
+  
+  /* Altura controlada basada exactamente en el tamaño del cuadro de la foto */
+  height: 52px; 
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--borde-sutil);
+  border-radius: 14px;
+  padding: 6px 10px;
+  
+  /* Todo en una sola fila simétrica */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  box-shadow: 0 8px 30px rgba(45, 43, 42, 0.08);
+  z-index: 100;
+}
+
+/* El cuadro negro con X: Define el alto total de la barra */
+.player-lineal-cover {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background-color: #2d2b2a;
+}
+
+/* Bloque de texto ultra optimizado */
+.player-lineal-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 75px;
+  max-width: 90px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.player-lineal-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--texto-oscuro);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+.player-lineal-artist {
+  font-size: 0.72rem;
+  color: var(--texto-suave);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+/* Contenedor multimedia lineal */
+.player-lineal-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Unir ligeramente los botones para una estética más pro */
+  flex-shrink: 0;
+}
+
+/* Base idéntica para los 3 botones (Asegura la misma forma geométrica) */
+.lineal-ctrl-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* Personalización del botón Play/Pausa central */
+.lineal-play-btn {
+  background: var(--texto-oscuro);
+  color: #ffffff;
+}
+
+/* Personalización de los botones Atrás y Adelante */
+.lineal-nav-btn {
+  background: transparent;
+  color: var(--texto-suave);
+}
+
+/* Efecto touch sutil en celulares para los botones de navegación */
+.lineal-nav-btn:active {
+  background: #e5e0d8;
+  color: var(--texto-oscuro);
+}
+
+.lineal-play-btn:active {
+  transform: scale(0.92);
+}
+
+/* Animaciones extras */
+.animate-heart {
+  display: block;
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 10px;
+  animation: heartPulse 2s infinite ease-in-out;
+}
+
+@keyframes heartPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.fade-in {
+  animation: fadeInSimple 0.5s ease-out forwards;
+}
+
+@keyframes fadeInSimple {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* ========================================================
+   MODIFICACIONES DE DISEÑO COMPACTO Y PREMIUM
+   ======================================================== */
+
+/* 1. HOMOLOGACIÓN DE BOTONES: Misma forma redondeada orgánica en todos */
+.btn-opcion {
+  background-color: #faf9f6;
+  border: 1px solid var(--borde-sutil);
+  color: var(--texto-oscuro);
+  border-radius: 30px; /* Redondeado idéntico al botón principal (pill shape) */
+  padding: 14px 24px;  /* Ajuste de empaque interno */
+  font-size: 0.95rem;
+  text-align: center;  /* Centramos el texto para mantener uniformidad */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-opcion:hover, .btn-opcion:active {
+  background-color: #ffffff;
+  border-color: var(--acento-romantico);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+/* 2. POLAROIDS COMPACTAS: Reducción del contenedor de texto inferior */
+.contenedor-scroll-polaroids .polaroid-física {
+  width: 290px;
+  background: #ffffff;
+  padding: 10px 10px 14px 10px; /* Reducimos drásticamente el padding inferior de 22px a 14px */
+  border-radius: 2px;
+  box-shadow: 0 10px 30px rgba(45, 43, 42, 0.08);
+  border: 1px solid #f2edd3;
+  position: relative;
+  transform: rotate(var(--angulo-random, 1deg));
+}
+
+.contenedor-scroll-polaroids .polaroid-física img {
+  width: 100%;
+  height: 275px; /* Le damos un poquito más de altura a la foto aprovechando el espacio ahorrado */
+  object-fit: cover;
+  display: block;
+}
+
+.contenedor-scroll-polaroids .polaroid-caption {
+  font-family: 'Georgia', serif;
+  font-size: 0.92rem; /* Texto un poquito más pequeño y fino */
+  color: #3d3a38;
+  margin-top: 10px; /* Pegamos el texto más a la foto */
+  text-align: center;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* 3. REPRODUCTOR FLOTANTE: Controles arriba y barra más delgada abajo */
+.spotify-player {
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 30px);
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.92); /* Un toque más opaco para legibilidad */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(234, 229, 219, 0.7);
+  border-radius: 20px;
+  padding: 12px 16px 8px 16px; /* Espaciado interno balanceado */
+  box-shadow: 0 10px 35px rgba(45, 43, 42, 0.1);
+  z-index: 100;
+}
+
+.spotify-player-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Separación marcada entre la fila de control y la de progreso */
+}
+
+/* Fila de arriba: Info a la izquierda, botones a la derecha */
+.spotify-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.spotify-track-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 60%;
+}
+
+.spotify-cover {
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.spotify-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Fila de abajo: Barra de tiempo minimalista */
+.spotify-progress-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.spotify-progress-bar {
+  flex-grow: 1;
+  accent-color: var(--texto-oscuro);
+  height: 3px; /* Barra de tiempo súper fina, delicada y estética */
+  border-radius: 2px;
+  cursor: pointer;
+  background: #e5e0d8;
+}
+
+.spotify-time {
+  font-size: 0.7rem;
+  color: var(--texto-suave);
+  min-width: 26px;
+  font-variant-numeric: tabular-nums; /* Evita que los números bailen al cambiar el tiempo */
+}
+
+/* Ajustes sutiles de tamaño de botones en la barra */
+.action-buttons-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.spotify-play-btn {
+  background: var(--texto-oscuro);
+  color: #fff;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.spotify-play-btn:active {
+  transform: scale(0.92);
+}
+/* ========================================================
+   SOLUCIÓN AL MINI REPRODUCTOR LINEAL
+   ======================================================== */
+
+/* Forzar que los tres botones midan exactamente lo mismo */
+.player-lineal-controls .btn-multimedia-circular {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  padding: 0 !important;
+}
+
+/* Botón central (Play/Pausa) negro */
+.btn-play-centro {
+  background-color: var(--texto-oscuro) !important;
+  color: #ffffff !important;
+}
+
+/* Botones laterales (Atrás/Adelante) gris claro para hacer el círculo visible */
+.btn-nav-izq, .btn-nav-der {
+  background-color: #f0ede6 !important;
+  color: var(--texto-suave) !important;
+}
+
+/* Efecto hover/touch para las flechas laterales */
+.btn-nav-izq:active, .btn-nav-der:active {
+  background-color: #e5e0d8 !important;
+  color: var(--texto-oscuro) !important;
+}
+
+/* Forzar que las etiquetas de tiempo se posicionen arriba de la barra de progreso */
+.player-lineal-progress-box {
+  display: flex !important;
+  flex-direction: column !important; /* Mantiene el flujo de arriba hacia abajo */
+  gap: 3px !important;
+  flex-grow: 1 !important;
+  min-width: 90px !important;
+  padding-right: 4px !important;
+  justify-content: center !important;
+}
+
+/* Estilización premium de la barra de progreso (adiós al azul grueso) */
+.lineal-progress-bar {
+  width: 100% !important;
+  accent-color: var(--texto-oscuro) !important; /* El círculo del slider será negro */
+  height: 3px !important;
+  border-radius: 2px !important;
+  background: #eae5db !important;
+  cursor: pointer !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Espaciado inferior sutil para las etiquetas antes de la barra */
+.lineal-time-labels {
+  display: flex !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  font-size: 0.65rem !important;
+  color: var(--texto-suave) !important;
+  font-variant-numeric: tabular-nums !important;
+  margin-bottom: 1px !important; /* Pequeño aire de separación antes de la línea */
+}
+/* Contenedor del icono de Spotify perfectamente centrado en su columna */
+.spotify-selector-icon {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+/* ========================================================
+   ESTILOS PREMIUM: CONTROL DE FOTOS COMPARTIDAS E INVITACIÓN
+   ======================================================== */
+
+/* Lema superior destacado */
+.boda-manifiesto-top {
+  font-family: 'Georgia', serif !important;
+  font-style: italic !important;
+  font-size: 0.98rem !important;
+  line-height: 1.6 !important;
+  color: var(--texto-suave) !important;
+  margin-bottom: 25px !important;
+  padding: 0 15px !important;
+  text-align: center !important;
+}
+
+/* Contenedor flexible para poner las fotos de lado a lado y el + en medio */
+.pareja-fotos-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 15px !important;
+  margin-bottom: 30px !important;
+  width: 100% !important;
+}
+
+/* Estilo de mini polaroid limpia para las fotos individuales */
+.pareja-foto-wrapper.polaroid-mini-style {
+  width: 105px !important;
+  height: 125px !important;
+  background: #ffffff !important;
+  padding: 6px 6px 18px 6px !important;
+  box-shadow: 0 6px 20px rgba(45, 43, 42, 0.06) !important;
+  border: 1px solid #f2edd3 !important;
+  border-radius: 2px !important;
+  flex-shrink: 0 !important;
+}
+
+.pareja-foto-wrapper.polaroid-mini-style img {
+  width: 100% !important;
+  height: 95px !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* El símbolo de más estilizado y flotante */
+.pareja-simbolo-mas {
+  font-family: 'Georgia', serif !important;
+  font-size: 1.5rem !important;
+  font-weight: 300 !important;
+  color: var(--acento-romantico) !important;
+  user-select: none !important;
+}
+
+/* Tipografía de invitación que clona el estilo viejo */
+.boda-invitacion-estilizada {
+  font-family: 'Georgia', serif !important;
+  font-style: italic !important;
+  font-size: 1.15rem !important;
+  color: var(--texto-oscuro) !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  margin-bottom: 8px !important;
+  text-align: center !important;
+}
+
+.boda-lugar {
+  font-size: 0.9rem !important;
+  color: var(--texto-suave) !important;
+  margin-bottom: 15px !important;
+  text-align: center !important;
+}
+/* Estilo cursivo refinado para el título principal de la fase final */
+.boda-titulo-cursivo {
+  font-family: 'Georgia', serif !important;
+  font-style: italic !important;
+  font-size: 2.1rem !important; /* Un poco más grande para destacar su formato cursivo */
+  font-weight: 500 !important;
+  color: var(--texto-oscuro) !important;
+  margin-top: 5px !important;
+  margin-bottom: 10px !important;
+  letter-spacing: -0.5px !important;
+  text-align: center !important;
+}
+/* ========================================================
+   REFINAMIENTO DE TITULO PREMIUM - BIENVENIDA
+   ======================================================== */
+.saludo-inicio {
+  font-family: 'Georgia', serif !important;
+  font-style: italic !important;         /* Transforma el título a letra cursiva elegante */
+  font-size: 2.4rem !important;          /* Un tamaño un poco más estilizado y presente */
+  font-weight: 500 !important;           /* Grosor medio para que se vea sofisticado, no tosco */
+  color: var(--texto-oscuro) !important;
+  margin-top: 10px !important;
+  margin-bottom: 30px !important;
+  letter-spacing: -0.5px !important;
+  text-align: center !important;
+  
+  /* Sutil animación de entrada para hacer juego con la cascada de texto */
+  opacity: 0;
+  filter: blur(4px);
+  animation: aparecerFraseSuave 1.2s ease-out 0.1s forwards;
 }
