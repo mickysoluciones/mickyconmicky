@@ -36,11 +36,11 @@ const MOMENTOS_CDMX = Array.from({ length: 30 }, (_, i) => ({
   foto: `cdmx${i + 1}.jpg`
 }));
 
-// 3. SECCIÓN ESPECIAL: NUESTROS PASOS ACTUALIZADA (6 Hitos Importantes)
+// 3. SECCIÓN ESPECIAL: NUESTROS PASOS (6 Hitos Importantes)
 const HITOS_ESPECIALES = [
   { id: 1, texto: "El día que nos conocimos 🏛️", foto: "hito1.jpg" },
   { id: 2, texto: "El día que nos hicimos novios 🤍", foto: "hito2.jpg" },
-  { id: 3, texto: "El día que nos comprometimos 💍", foto: "hito3.jpg" }, // <-- ¡Agregado aquí!
+  { id: 3, texto: "El día que nos comprometimos 💍", foto: "hito3.jpg" },
   { id: 4, texto: "Entrega del terrenito 🪵", foto: "hito4.jpg" },
   { id: 5, texto: "Entrega del departamentito 🔑", foto: "hito5.jpg" },
   { id: 6, texto: "Y todos los que nos faltan... ♾️", foto: "hito6.jpg" }
@@ -55,11 +55,6 @@ const CANCIONES_BASE = [
 
 export default function Home() {
   const [fase, setFase] = useState("inicio"); 
-  const [noBtnPos, setNoBtnPos] = useState({ top: "0px", left: "0px" });
-  const [noBtnAbsolute, setNoBtnAbsolute] = useState(false);
-  const [fechaSeleccionada, setFechaSeleccionada] = useState("");
-
-  // Estados de Música
   const [cancionSeleccionada, setCancionSeleccionada] = useState<typeof CANCIONES_BASE[0] | null>(null);
   const [reproductorExpandido, setReproductorExpandido] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -68,16 +63,13 @@ export default function Home() {
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Cascada de texto inicial
+  // CONTROL DE TIEMPOS FORZADO DESDE JAVASCRIPT
   const [frasesVisibles, setFrasesVisibles] = useState(0);
   useEffect(() => {
     if (fase === "inicio") {
-      setTimeout(() => setFrasesVisibles(1), 400);
-      setTimeout(() => setFrasesVisibles(2), 2600);
-      setTimeout(() => setFrasesVisibles(3), 5200);
-      setTimeout(() => setFrasesVisibles(4), 8000);
-      setTimeout(() => setFrasesVisibles(5), 9800);
-      setTimeout(() => setFrasesVisibles(6), 1300);
+      setTimeout(() => setFrasesVisibles(1), 100);   // Frase 1 (0.1s)
+      setTimeout(() => setFrasesVisibles(2), 1500);  // Frase 2 (1.5s)
+      setTimeout(() => setFrasesVisibles(3), 2500);  // Frase 3 y Botón (2.5s)
     }
   }, [fase]);
 
@@ -92,6 +84,25 @@ export default function Home() {
       }
     }
   }, [cancionSeleccionada]);
+
+  const regresarFase = () => {
+    if (fase === "q_musica") {
+      if (reproductorExpandido) {
+        setReproductorExpandido(false);
+      } else {
+        setFase("inicio");
+      }
+    } else if (fase === "pueblitos_magicos") {
+      setFase("q_musica");
+      setReproductorExpandido(true);
+    } else if (fase === "pregunta_nueva") {
+      setFase("pueblitos_magicos");
+    } else if (fase === "nuestros_pasos") {
+      setFase("pregunta_nueva");
+    } else if (fase === "q_huye") {
+      setFase("nuestros_pasos");
+    }
+  };
 
   const cambiarCancion = (direccion: "siguiente" | "anterior") => {
     const currentIndex = CANCIONES_BASE.findIndex((c) => c.id === cancionSeleccionada?.id);
@@ -130,16 +141,6 @@ export default function Home() {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
-  const moverBotonNo = (e: React.MouseEvent | React.TouchEvent) => {
-    if (e.cancelable) e.preventDefault();
-    setNoBtnAbsolute(true);
-    const rangoX = 110; 
-    const rangoY = 70;
-    const randomX = (Math.random() - 0.5) * 2 * rangoX;
-    const randomY = (Math.random() - 0.5) * 2 * rangoY;
-    setNoBtnPos({ top: `${randomY}px`, left: `${randomX}px` });
-  };
-
   return (
     <main className="app-container" style={{ margin: "0 auto" }}>
       {cancionSeleccionada && (
@@ -152,42 +153,58 @@ export default function Home() {
         />
       )}
 
-      {/* FASE 1: BIENVENIDA CON TU TEXTO ACTUALIZADO */}
+      {/* FASE 1: BIENVENIDA (ESTILOS INTEGRADOS QUE ANULAN AL CSS) */}
       {fase === "inicio" && (
         <div className="card-pantalla card-inicio-premium">
           <span className="emoji-header animate-heart">❤️</span>
-          <h1 className="saludo-inicio">Hola, Micky</h1>
+          <h1 className="saludo-inicio">Para ti, Micky</h1>
           
-          <div className="carta-introduccion">
-            <p className="bloque-oraciones">
-              <span className="frase-css f-1">Sé que te lastimé, Micky, y que sanar toma tiempo.</span>
-            </p>
-            <p className="bloque-oraciones">
-              <span className="frase-css f-2">Pero más de 8 años de historia no se borran.</span>
-            </p>
-            <p className="bloque-oraciones">
-              <span className="frase-css f-3">Diseñé este espacio para nosotros: </span>
-              <span className="frase-css f-4">para recordar quiénes somos, cuidar de lo que tenemos </span>
-              <span className="frase-css f-5 destacada-frase">y volver a construir el futuro que siempre soñamos.</span>
-            </p>
-          </div>
-
-          <div className="bloque-firma-accion">
-            <div className="firma-remitente">Con amor, Carlitos</div>
-            <button className="btn-principal" onClick={() => setFase("q_musica")}>Comenzar</button>
+          <div className="carta-introduccion" style={{ textAlign: "left", maxWidth: "460px", margin: "0 auto" }}>
+            <div className="bloque-oraciones" style={{ marginBottom: "20px" }}>
+              <div className={`frase-css f-1 ${frasesVisibles >= 1 ? "visible" : ""}`} style={{ fontSize: "1.05rem", lineHeight: "1.7" }}>
+                No verte todos los dias ha sido muy dificil, pero no tenerte en mi vida ha sido mucho peor. Te extraño en maneras que no se explicar, porque la vida se siente distinta cuando no estoy contigo.
+              </div>
+            </div>
+            
+            <div className="bloque-oraciones" style={{ marginBottom: "20px" }}>
+              <div className={`frase-css f-2 ${frasesVisibles >= 2 ? "visible" : ""}`} style={{ fontSize: "1.05rem", lineHeight: "1.7", color: "#51473c", fontStyle: "italic" }}>
+                Si pudiera regalarte algo, te regalaria mis ojos. Para que puedas verte como yo te veo, sentir el amor de tu sonrisa, escuchar el amor en tu voz, y que puedas ver la persona unica que eres y cuanto te amo.
+              </div>
+            </div>
+            
+            <div className="bloque-oraciones" style={{ marginBottom: "25px" }}>
+              <div className={`frase-css f-3 ${frasesVisibles >= 3 ? "visible" : ""}`} style={{ fontSize: "1.05rem", lineHeight: "1.7", fontWeight: "500" }}>
+                Por eso hice este espacio, para que puedas ver un poqutio de lo que yo veo.
+                
+                {/* BYPASS DE CSS: Forzamos la animación directamente aquí con JavaScript en línea */}
+                <div 
+                  style={{ 
+                    marginTop: "30px", 
+                    textAlign: "center",
+                    opacity: frasesVisibles >= 3 ? 1 : 0,
+                    transform: frasesVisibles >= 3 ? "translateY(0)" : "translateY(15px)",
+                    transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
+                    animation: "none" /* 👈 Anula cualquier animación/retraso del CSS anterior */
+                  }}
+                >
+                  <div style={{ fontStyle: "italic", marginBottom: "15px", fontWeight: "normal" }}>Con amor, Carlitos</div>
+                  <button className="btn-principal" onClick={() => setFase("q_musica")}>Comenzar viaje</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* FASE 2: SELECCIÓN DE MÚSICA (CON LOGO DE SPOTIFY ALINEADO) */}
+      {/* FASE 2: SELECCIÓN DE MÚSICA */}
       {fase === "q_musica" && !reproductorExpandido && (
-        <div className="card-pantalla fade-in">
+        <div className="card-pantalla fade-in" style={{ position: "relative" }}>
+          <button className="btn-regresar" onClick={regresarFase}>← Volver</button>
           <h2>Ponle música a nuestro viaje 🎧</h2>
           <p className="pregunta-texto">Escoge la canción que nos acompañará en este viaje</p>
           <div className="opciones-lista">
             {CANCIONES_BASE.map((cancion) => (
               <button key={cancion.id} className="btn-opcion btn-cancion-selector" onClick={() => { setCancionSeleccionada(cancion); setReproductorExpandido(true); }}>
-                {/* Logo de Spotify SVG alineado de forma fija */}
                 <div className="spotify-selector-icon">
                   <svg viewBox="0 0 24 24" fill="#1DB954" width="22" height="22">
                     <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.564.387-.86.207-2.377-1.454-5.37-1.783-8.893-.982-.336.075-.668-.135-.744-.47-.075-.336.135-.668.47-.743 3.856-.88 7.15-.509 9.822 1.13.296.178.387.563.206.858zm1.224-2.723c-.226.367-.706.487-1.074.26-2.72-1.672-6.87-2.157-10.08-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.676-1.114 8.243-.573 11.347 1.336.368.226.487.706.26 1.074zm.104-2.825C14.392 8.76 8.442 8.563 5.005 9.606c-.53.16-1.09-.14-1.25-.67-.16-.53.14-1.09.67-1.25 3.963-1.202 10.556-.975 14.61 1.433.477.283.632.9.348 1.377-.283.478-.9.632-1.377.348z"/>
@@ -205,7 +222,8 @@ export default function Home() {
 
       {/* REPRODUCTOR EXPANDIDO */}
       {fase === "q_musica" && reproductorExpandido && cancionSeleccionada && (
-        <div className="card-pantalla fade-in premium-player-card">
+        <div className="card-pantalla fade-in premium-player-card" style={{ position: "relative" }}>
+          <button className="btn-regresar" onClick={regresarFase}>← Cambiar canción</button>
           <h2>Sonando ahora... 🎵</h2>
           <div className="player-big-cover-box"><img src={cancionSeleccionada.cover} alt="Cover" className="player-big-cover" /></div>
           <div className="player-track-details">
@@ -229,14 +247,14 @@ export default function Home() {
           </div>
           <div className="opciones-lista" style={{ marginTop: "30px" }}>
             <button className="btn-principal" onClick={() => { setReproductorExpandido(false); setFase("pueblitos_magicos"); }}>Primer Parada</button>
-            <button className="btn-opcion" style={{ textAlign: "center" }} onClick={() => setReproductorExpandido(false)}>Cambiar de canción</button>
           </div>
         </div>
       )}
 
-      {/* FASE 3: PUEBLITOS MÁGICOS (FEED DE 23 POLAROIDS) */}
+      {/* FASE 3: PUEBLITOS MÁGICOS */}
       {fase === "pueblitos_magicos" && (
-        <div className="card-pantalla card-feed-polaroids fade-in">
+        <div className="card-pantalla card-feed-polaroids fade-in" style={{ position: "relative" }}>
+          <button className="btn-regresar" style={{ zIndex: 10 }} onClick={regresarFase}>← Volver</button>
           <div className="feed-header">
             <h2>Pueblitos Mágicos</h2>
             <p className="pregunta-texto">Un recordatorio de todos los lugares que hemos visitado y los que nos faltan por conocer</p>
@@ -273,9 +291,10 @@ export default function Home() {
         </div>
       )}
 
-      {/* FASE 4: CDMX (FEED DE 30 POLAROIDS) */}
+      {/* FASE 4: CDMX */}
       {fase === "pregunta_nueva" && (
-        <div className="card-pantalla card-feed-polaroids fade-in">
+        <div className="card-pantalla card-feed-polaroids fade-in" style={{ position: "relative" }}>
+          <button className="btn-regresar" style={{ zIndex: 10 }} onClick={regresarFase}>← Volver</button>
           <div className="feed-header">
             <h2>CDMX</h2>
             <p className="pregunta-texto">La ciudad que nos encontro</p>
@@ -312,9 +331,10 @@ export default function Home() {
         </div>
       )}
 
-      {/* FASE 5: NUESTROS PASOS (FEED DE 6 POLAROIDS CON EL COMPROMISO ACTUALIZADO) */}
+      {/* FASE 5: NUESTROS PASOS */}
       {fase === "nuestros_pasos" && (
-        <div className="card-pantalla card-feed-polaroids fade-in">
+        <div className="card-pantalla card-feed-polaroids fade-in" style={{ position: "relative" }}>
+          <button className="btn-regresar" style={{ zIndex: 10 }} onClick={regresarFase}>← Volver</button>
           <div className="feed-header">
             <h2>Momentos</h2>
             <p className="pregunta-texto">Por ultimo quiero mostrate los momentos que considero han sido de suma importancia y son la promesa de todo lo que vendrá:</p>
@@ -344,109 +364,50 @@ export default function Home() {
 
             <div className="feed-actions-scroll-natural">
               <button className="btn-principal" onClick={() => setFase("q_huye")}>
-                Mirar al futuro
+                Volvamos a creer
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* FASE 6: EL BOTÓN QUE HUYE CON TU TEXTO PERSONALIZADO */}
+      {/* FASE 6: MENSAJE FINAL SINCERO CON FOTOS */}
       {fase === "q_huye" && (
-        <div className="card-pantalla fade-in" style={{ paddingBottom: "110px", maxWidth: "420px" }}>
-          <h2>Micky... 🤍</h2>
-          <p className="pregunta-texto" style={{ textAlign: "left", lineHeight: "1.6", fontSize: "1.05rem" }}>
-            Me tomó este tiempo de distancia entender el daño que te estaba haciendo. No quiero ofrecerte el mismo pasado, 
-            quiero ofrecerte un presente distinto y un futuro que no te deje dudas, donde mis ganas de construir una vida 
-            y un hogar contigo siguen intactas. 
-            <br /><br />
-            Si la vida nos vuelve a poner de frente y el amor sigue intacto... 
-            <br /><br />
-            <strong>¿Te gustaría que empecemos de nuevo, a nuestra manera, y sigamos escribiendo este libro llamado Micky con Micky Foeva?</strong>
-          </p>
+        <div className="card-pantalla fade-in" style={{ maxWidth: "460px", position: "relative", margin: "0 auto" }}>
+          <button className="btn-regresar" onClick={regresarFase}>← Volver</button>
           
-          <div className="contenedor-botones-huye" style={{ marginTop: "30px" }}>
-            <button className="btn-si" onClick={() => setFase("invitacion")}>
-              Sí, empecemos de nuevo ❤️
-            </button>
-            <button 
-              className="btn-no" 
-              style={noBtnAbsolute ? { position: "relative", transform: `translate(${noBtnPos.left}, ${noBtnPos.top})`, transition: "all 0.15s ease-out" } : {}} 
-              onMouseEnter={moverBotonNo} 
-              onTouchStart={moverBotonNo}
-            >
-              Vemos
-            </button>
+          <h2 style={{ marginBottom: "20px" }}>Micky... 🤍</h2>
+          
+          {/* Contenedor de fotos fijas */}
+          <div className="pareja-fotos-container" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "15px", marginTop: "10px", marginBottom: "25px" }}>
+            <div className="pareja-foto-wrapper polaroid-mini-style" style={{ width: "110px", padding: "6px", background: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.15)", borderRadius: "2px" }}>
+              <img src="/images/micky_perfil.jpg" alt="Micky" style={{ width: "100%", height: "110px", objectFit: "cover" }} onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} />
+            </div>
+            <div className="pareja-simbolo-mas" style={{ fontSize: "1.8rem", fontWeight: "300", color: "#a1887f" }}>+</div>
+            <div className="pareja-foto-wrapper polaroid-mini-style" style={{ width: "110px", padding: "6px", background: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.15)", borderRadius: "2px" }}>
+              <img src="/images/carlos_perfil.jpg" alt="Carlos" style={{ width: "100%", height: "110px", objectFit: "cover" }} onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} />
+            </div>
+          </div>
+
+          <div className="carta-introduccion" style={{ textAlign: "left", lineHeight: "1.7", fontSize: "1.02rem" }}>
+            <p style={{ marginBottom: "15px" }}>
+              Quiero que sepas que sigues siendo la persona mas importante de mi vida, tambien se que las palabras por si solas no son suficientes. Por eso prefiero que mis acciones hablen mas fuerte que cualquier promesa. No quiero repetir los mismos errores ni los mismos comportamientos que te causaron tanto dolor.
+            </p>
+            <p style={{ marginBottom: "15px" }}>
+              No estoy aqui para hacerte perder el tiempo, estoy aqui hacer una vida, una historia y un future contigo. Lo único que te pido es que me escuches y que podamos platicar sin presion, sin miedo, con sinceridad.
+            </p>
           </div>
         </div>
       )}
 
-     {/* FASE FINAL: SECCIÓN DE CIERRE ULTRA MINIMALISTA */}
-      {fase === "invitacion" && (
-        <div className="card-pantalla boda-template fade-in" style={{ maxWidth: "420px" }}>
-          <div className="boda-marco">
-            <span className="boda-badge">NUESTRO PRESENTE</span>
-            {/* TÍTULO EN CURSIVA Y SIN CORAZÓN */}
-            <h1 className="boda-titulo-cursivo">Sigamos construyendo</h1>
-
-            {/* CONTENEDOR DE FOTOS INDIVIDUALES CON EL SÍMBOLO DE MÁS */}
-            <div className="pareja-fotos-container" style={{ marginTop: "25px" }}>
-              <div className="pareja-foto-wrapper polaroid-mini-style">
-                <img src="/images/micky_perfil.jpg" alt="Micky" onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} />
-              </div>
-              <div className="pareja-simbolo-mas">+</div>
-              <div className="pareja-foto-wrapper polaroid-mini-style">
-                <img src="/images/carlos_perfil.jpg" alt="Carlos" onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} />
-              </div>
-            </div>
-
-            <div className="boda-detalles">
-              <p className="boda-invitacion-estilizada">
-                Estás cordialmente invitada a nuestro felices por siempre.
-              </p>
-              <p className="boda-lugar">Lugar: Nuestro rincón favorito del mundo.</p>
-              
-              <div className="selector-fecha-box">
-                <label htmlFor="fecha-pacto">Falta lo más importante, escoge la fecha:</label>
-                <input 
-                  type="date" 
-                  id="fecha-pacto"
-                  className="input-fecha" 
-                  value={fechaSeleccionada} 
-                  onChange={(e) => setFechaSeleccionada(e.target.value)} 
-                />
-              </div>
-              
-              {fechaSeleccionada && (
-                <div className="confirmacion-boda fade-in">
-                  <span className="animate-heart">✨❤️✨</span>
-                  <p>
-                    El primer día del resto de nuestras vidas está agendado para el 
-                    <strong> {new Date(fechaSeleccionada + 'T00:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>.
-                  </p>
-                  <p style={{ marginTop: '10px', fontSize: '0.85rem', opacity: 0.9 }}>
-                    Micky con Micky Foeva.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-{/* REPRODUCTOR LINEAL CORREGIDO SIN BUG DE TIEMPOS */}
+      {/* REPRODUCTOR LINEAL */}
       {cancionSeleccionada && !reproductorExpandido && fase !== "inicio" && (
         <div className="spotify-player-lineal">
-          
-          {/* 1. PORTADA */}
           <img src={cancionSeleccionada.cover} alt="Cover" className="player-lineal-cover" />
-          
-          {/* 2. TEXTO INFO */}
           <div className="player-lineal-text">
             <div className="player-lineal-title">{cancionSeleccionada.titulo}</div>
             <div className="player-lineal-artist">{cancionSeleccionada.artista}</div>
           </div>
-          
-          {/* 3. CONTROLES MULTIMEDIA CORREGIDOS */}
           <div className="player-lineal-controls">
             <button className="btn-multimedia-circular btn-nav-izq" onClick={() => cambiarCancion("anterior")}>
               <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
@@ -462,8 +423,6 @@ export default function Home() {
               <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg>
             </button>
           </div>
-          
-          {/* 4. PROGRESO CON TIEMPOS ALINEADOS ARRIBA */}
           <div className="player-lineal-progress-box">
             <div className="lineal-time-labels">
               <span>{formatTime(currentTime)}</span>
@@ -471,7 +430,6 @@ export default function Home() {
             </div>
             <input type="range" className="lineal-progress-bar" min="0" max={duration || 0} value={currentTime} onChange={handleProgressChange} />
           </div>
-
         </div>
       )}
     </main>

@@ -1018,3 +1018,66 @@ h2 {
   filter: blur(4px);
   animation: aparecerFraseSuave 1.2s ease-out 0.1s forwards;
 }
+.btn-regresar {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: transparent;
+  border: none;
+  color: #8a7b6e; /* un tono grisáceo/café suave que combine con tu estética minimalista */
+  font-size: 0.9rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.btn-regresar:hover {
+  opacity: 1;
+}
+/* ==========================================================================
+   TIEMPOS CORREGIDOS PARA LA CASCADA DE FRASES (PANTALLA INICIAL)
+   ========================================================================== */
+
+.frase-css.f-1 {
+  animation-delay: 0.3s; /* Aparece casi de inmediato */
+}
+
+.frase-css.f-2 {
+  animation-delay: 3.2s; /* Aparece 3 segundos después, al terminar de leer la primera */
+}
+
+.frase-css.f-3 {
+  animation-delay: 6.5s; /* ¡REDUCIDO! Aparece a los 6.5s junto con la firma y el botón */
+}
+/* ==========================================================================
+   CORRECCIÓN DEL TEMPORIZADOR Y VELOCIDAD EN LA CASCADA DE TEXTO
+   ========================================================================== */
+
+/* Forzamos que la animación de entrada dure solo 1 segundo en lugar de ser lenta */
+.frase-css {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 1.0s ease-out, transform 1.0s ease-out !important;
+}
+
+/* Cuando React le añade la clase 'visible', entra de inmediato */
+.frase-css.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Ajuste de arranque por pasos (Delays) directo en CSS */
+.frase-css.f-1 {
+  animation-delay: 0.2s !important;
+  transition-delay: 0.2s !important;
+}
+
+.frase-css.f-2 {
+  animation-delay: 2.2s !important;
+  transition-delay: 2.2s !important; /* Aparece al terminar de leer la primera */
+}
+
+.frase-css.f-3 {
+  animation-delay: 4.5s !important;
+  transition-delay: 4.5s !important; /* ¡Acelerado! Entra con la firma y el botón sin esperar más */
+}
