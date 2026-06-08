@@ -46,9 +46,8 @@ const HITOS_ESPECIALES = [
   { id: 6, texto: "Y todos los que nos faltan... ♾️", foto: "hito6.jpg" }
 ];
 
-// 4. CANCIONES BASE
+// 4. CANCIONES BASE (SIN LA CANCIÓN "PERDÓN")
 const CANCIONES_BASE = [
-  { id: "perdon", titulo: "Perdón", artista: "MICKY", archivo: "/audio/perdon.mp3", cover: "/images/cover-perdon.jpg" },
   { id: "momento-perfecto", titulo: "El Momento Perfecto", artista: "MICKY", archivo: "/audio/el-momento-perfecto.mp3", cover: "/images/cover-momento.jpg" },
   { id: "quiero", titulo: "Quiero", artista: "MICKY", archivo: "/audio/quiero.mp3", cover: "/images/cover-quiero.jpg" }
 ];
@@ -63,13 +62,31 @@ export default function Home() {
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // CONTROL DE TIEMPOS FORZADO DESDE JAVASCRIPT
+  // FUNCIÓN RETORNADA A WHATSAPP (CALLMEBOT)
+  const notificarWhatsApp = async (mensaje: string) => {
+    try {
+      const phone = process.env.NEXT_PUBLIC_WHATSAPP_PHONE;
+      const apiKey = process.env.NEXT_PUBLIC_WHATSAPP_API_KEY;
+      if (!phone || !apiKey) return;
+
+      const textoFormateado = encodeURIComponent(`[mickyconmicky]: ${mensaje}`);
+      
+      // Llamada directa al bot de WhatsApp (asíncrona y silenciosa)
+      fetch(`https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${textoFormateado}&apikey=${apiKey}`, {
+        mode: 'no-cors'
+      });
+    } catch (e) {
+      console.error("Error enviando notificación", e);
+    }
+  };
+
+  // CONTROL DE TIEMPOS DINÁMICO
   const [frasesVisibles, setFrasesVisibles] = useState(0);
   useEffect(() => {
     if (fase === "inicio") {
-      setTimeout(() => setFrasesVisibles(1), 100);   // Frase 1 (0.1s)
-      setTimeout(() => setFrasesVisibles(2), 1500);  // Frase 2 (1.5s)
-      setTimeout(() => setFrasesVisibles(3), 2500);  // Frase 3 y Botón (2.5s)
+      setTimeout(() => setFrasesVisibles(1), 100);   
+      setTimeout(() => setFrasesVisibles(2), 1500);  
+      setTimeout(() => setFrasesVisibles(3), 2500);  
     }
   }, [fase]);
 
@@ -92,13 +109,13 @@ export default function Home() {
       } else {
         setFase("inicio");
       }
-    } else if (fase === "pueblitos_magicos") {
+    } else if (fase === "pregunta_nueva") {
       setFase("q_musica");
       setReproductorExpandido(true);
-    } else if (fase === "pregunta_nueva") {
-      setFase("pueblitos_magicos");
-    } else if (fase === "nuestros_pasos") {
+    } else if (fase === "pueblitos_magicos") {
       setFase("pregunta_nueva");
+    } else if (fase === "nuestros_pasos") {
+      setFase("pueblitos_magicos");
     } else if (fase === "q_huye") {
       setFase("nuestros_pasos");
     }
@@ -113,6 +130,7 @@ export default function Home() {
       nextIndex = (currentIndex - 1 + CANCIONES_BASE.length) % CANCIONES_BASE.length;
     }
     setCancionSeleccionada(CANCIONES_BASE[nextIndex]);
+    notificarWhatsApp(`Cambió de canción a: ${CANCIONES_BASE[nextIndex].titulo} 🎵`);
   };
 
   const togglePlay = () => {
@@ -123,6 +141,7 @@ export default function Home() {
     } else {
       audioRef.current.play().catch(() => {});
       setIsPlaying(true);
+      notificarWhatsApp(`Le dio Play / Reanudó la música ▶️`);
     }
   };
 
@@ -153,7 +172,7 @@ export default function Home() {
         />
       )}
 
-      {/* FASE 1: BIENVENIDA (ESTILOS INTEGRADOS QUE ANULAN AL CSS) */}
+      {/* FASE 1: BIENVENIDA */}
       {fase === "inicio" && (
         <div className="card-pantalla card-inicio-premium">
           <span className="emoji-header animate-heart">❤️</span>
@@ -176,7 +195,6 @@ export default function Home() {
               <div className={`frase-css f-3 ${frasesVisibles >= 3 ? "visible" : ""}`} style={{ fontSize: "1.05rem", lineHeight: "1.7", fontWeight: "500" }}>
                 Por eso hice este espacio, para que puedas ver un poqutio de lo que yo veo.
                 
-                {/* BYPASS DE CSS: Forzamos la animación directamente aquí con JavaScript en línea */}
                 <div 
                   style={{ 
                     marginTop: "30px", 
@@ -184,11 +202,11 @@ export default function Home() {
                     opacity: frasesVisibles >= 3 ? 1 : 0,
                     transform: frasesVisibles >= 3 ? "translateY(0)" : "translateY(15px)",
                     transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
-                    animation: "none" /* 👈 Anula cualquier animación/retraso del CSS anterior */
+                    animation: "none" 
                   }}
                 >
                   <div style={{ fontStyle: "italic", marginBottom: "15px", fontWeight: "normal" }}>Con amor, Carlitos</div>
-                  <button className="btn-principal" onClick={() => setFase("q_musica")}>Comenzar viaje</button>
+                  <button className="btn-principal" onClick={() => { setFase("q_musica"); notificarWhatsApp("¡Abrió la carta y presionó 'Comenzar viaje'! 💌"); }}>Comenzar viaje</button>
                 </div>
               </div>
             </div>
@@ -204,7 +222,7 @@ export default function Home() {
           <p className="pregunta-texto">Escoge la canción que nos acompañará en este viaje</p>
           <div className="opciones-lista">
             {CANCIONES_BASE.map((cancion) => (
-              <button key={cancion.id} className="btn-opcion btn-cancion-selector" onClick={() => { setCancionSeleccionada(cancion); setReproductorExpandido(true); }}>
+              <button key={cancion.id} className="btn-opcion btn-cancion-selector" onClick={() => { setCancionSeleccionada(cancion); setReproductorExpandido(true); notificarWhatsApp(`Seleccionó la canción: ${cancion.titulo} 🎵`); }}>
                 <div className="spotify-selector-icon">
                   <svg viewBox="0 0 24 24" fill="#1DB954" width="22" height="22">
                     <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.564.387-.86.207-2.377-1.454-5.37-1.783-8.893-.982-.336.075-.668-.135-.744-.47-.075-.336.135-.668.47-.743 3.856-.88 7.15-.509 9.822 1.13.296.178.387.563.206.858zm1.224-2.723c-.226.367-.706.487-1.074.26-2.72-1.672-6.87-2.157-10.08-1.182-.413.125-.847-.107-.972-.52-.125-.413.107-.847.52-.972 3.676-1.114 8.243-.573 11.347 1.336.368.226.487.706.26 1.074zm.104-2.825C14.392 8.76 8.442 8.563 5.005 9.606c-.53.16-1.09-.14-1.25-.67-.16-.53.14-1.09.67-1.25 3.963-1.202 10.556-.975 14.61 1.433.477.283.632.9.348 1.377-.283.478-.9.632-1.377.348z"/>
@@ -246,52 +264,12 @@ export default function Home() {
             </div>
           </div>
           <div className="opciones-lista" style={{ marginTop: "30px" }}>
-            <button className="btn-principal" onClick={() => { setReproductorExpandido(false); setFase("pueblitos_magicos"); }}>Primer Parada</button>
+            <button className="btn-principal" onClick={() => { setReproductorExpandido(false); setFase("pregunta_nueva"); notificarWhatsApp("Entró a la sección de CDMX 🏙️"); }}>Primer Parada</button>
           </div>
         </div>
       )}
 
-      {/* FASE 3: PUEBLITOS MÁGICOS */}
-      {fase === "pueblitos_magicos" && (
-        <div className="card-pantalla card-feed-polaroids fade-in" style={{ position: "relative" }}>
-          <button className="btn-regresar" style={{ zIndex: 10 }} onClick={regresarFase}>← Volver</button>
-          <div className="feed-header">
-            <h2>Pueblitos Mágicos</h2>
-            <p className="pregunta-texto">Un recordatorio de todos los lugares que hemos visitado y los que nos faltan por conocer</p>
-          </div>
-          
-          <div className="contenedor-scroll-polaroids">
-            {MOMENTOS_VIAJES.map((momento, index) => {
-              const seed = Math.sin(index + 1) * 10000;
-              const anguloAleatorio = (seed - Math.floor(seed)) * 8 - 4; 
-
-              return (
-                <div 
-                  key={momento.id} 
-                  className="polaroid-física"
-                  style={{ "--angulo-random": `${anguloAleatorio}deg` } as React.CSSProperties}
-                >
-                  <div className="masking-tape"></div>
-                  <img 
-                    src={`/images/${momento.foto}`} 
-                    alt={momento.texto} 
-                    onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} 
-                  />
-                  <div className="polaroid-caption">{momento.texto}</div>
-                </div>
-              );
-            })}
-
-            <div className="feed-actions-scroll-natural">
-              <button className="btn-principal" onClick={() => setFase("pregunta_nueva")}>
-                Siguiente Parada
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* FASE 4: CDMX */}
+      {/* FASE 3: CDMX */}
       {fase === "pregunta_nueva" && (
         <div className="card-pantalla card-feed-polaroids fade-in" style={{ position: "relative" }}>
           <button className="btn-regresar" style={{ zIndex: 10 }} onClick={regresarFase}>← Volver</button>
@@ -306,24 +284,48 @@ export default function Home() {
               const anguloAleatorio = (seed - Math.floor(seed)) * 8 - 4; 
 
               return (
-                <div 
-                  key={momento.id} 
-                  className="polaroid-física"
-                  style={{ "--angulo-random": `${anguloAleatorio}deg` } as React.CSSProperties}
-                >
+                <div key={momento.id} className="polaroid-física" style={{ "--angulo-random": `${anguloAleatorio}deg` } as React.CSSProperties}>
                   <div className="masking-tape"></div>
-                  <img 
-                    src={`/images/${momento.foto}`} 
-                    alt={momento.texto} 
-                    onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} 
-                  />
+                  <img src={`/images/${momento.foto}`} alt={momento.texto} onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} />
                   <div className="polaroid-caption">{momento.texto}</div>
                 </div>
               );
             })}
 
             <div className="feed-actions-scroll-natural">
-              <button className="btn-principal" onClick={() => setFase("nuestros_pasos")}>
+              <button className="btn-principal" onClick={() => { setFase("pueblitos_magicos"); notificarWhatsApp("Entró a la sección de Pueblitos Mágicos 🏔️"); }}>
+                Siguiente Parada
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FASE 4: PUEBLITOS MÁGICOS */}
+      {fase === "pueblitos_magicos" && (
+        <div className="card-pantalla card-feed-polaroids fade-in" style={{ position: "relative" }}>
+          <button className="btn-regresar" style={{ zIndex: 10 }} onClick={regresarFase}>← Volver</button>
+          <div className="feed-header">
+            <h2>Pueblitos Mágicos</h2>
+            <p className="pregunta-texto">Un recordatorio de todos los lugares que hemos visitado y los que nos faltan por conocer</p>
+          </div>
+          
+          <div className="contenedor-scroll-polaroids">
+            {MOMENTOS_VIAJES.map((momento, index) => {
+              const seed = Math.sin(index + 1) * 10000;
+              const anguloAleatorio = (seed - Math.floor(seed)) * 8 - 4; 
+
+              return (
+                <div key={momento.id} className="polaroid-física" style={{ "--angulo-random": `${anguloAleatorio}deg` } as React.CSSProperties}>
+                  <div className="masking-tape"></div>
+                  <img src={`/images/${momento.foto}`} alt={momento.texto} onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} />
+                  <div className="polaroid-caption">{momento.texto}</div>
+                </div>
+              );
+            })}
+
+            <div className="feed-actions-scroll-natural">
+              <button className="btn-principal" onClick={() => { setFase("nuestros_pasos"); notificarWhatsApp("Entró a la sección de Momentos clave 💍🔑"); }}>
                 Ultima Parada
               </button>
             </div>
@@ -346,24 +348,16 @@ export default function Home() {
               const anguloAleatorio = (seed - Math.floor(seed)) * 6 - 3; 
 
               return (
-                <div 
-                  key={momento.id} 
-                  className="polaroid-física"
-                  style={{ "--angulo-random": `${anguloAleatorio}deg` } as React.CSSProperties}
-                >
+                <div key={momento.id} className="polaroid-física" style={{ "--angulo-random": `${anguloAleatorio}deg` } as React.CSSProperties}>
                   <div className="masking-tape"></div>
-                  <img 
-                    src={`/images/${momento.foto}`} 
-                    alt={momento.texto} 
-                    onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} 
-                  />
+                  <img src={`/images/${momento.foto}`} alt={momento.texto} onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} />
                   <div className="polaroid-caption" style={{ fontWeight: "600" }}>{momento.texto}</div>
                 </div>
               );
             })}
 
             <div className="feed-actions-scroll-natural">
-              <button className="btn-principal" onClick={() => setFase("q_huye")}>
+              <button className="btn-principal" onClick={() => { setFase("q_huye"); notificarWhatsApp("¡Ha llegado a la carta final sincera! 🤍✨"); }}>
                 Volvamos a creer
               </button>
             </div>
@@ -371,14 +365,13 @@ export default function Home() {
         </div>
       )}
 
-      {/* FASE 6: MENSAJE FINAL SINCERO CON FOTOS */}
+      {/* FASE 6: MENSAJE FINAL SINCERO */}
       {fase === "q_huye" && (
         <div className="card-pantalla fade-in" style={{ maxWidth: "460px", position: "relative", margin: "0 auto" }}>
           <button className="btn-regresar" onClick={regresarFase}>← Volver</button>
           
           <h2 style={{ marginBottom: "20px" }}>Micky... 🤍</h2>
           
-          {/* Contenedor de fotos fijas */}
           <div className="pareja-fotos-container" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "15px", marginTop: "10px", marginBottom: "25px" }}>
             <div className="pareja-foto-wrapper polaroid-mini-style" style={{ width: "110px", padding: "6px", background: "#fff", boxShadow: "0 4px 10px rgba(0,0,0,0.15)", borderRadius: "2px" }}>
               <img src="/images/micky_perfil.jpg" alt="Micky" style={{ width: "100%", height: "110px", objectFit: "cover" }} onError={(e) => { (e.target as HTMLImageElement).src = "/images/portada.jpg"; }} />
