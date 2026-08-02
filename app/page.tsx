@@ -84,9 +84,14 @@ export default function Home() {
   const [frasesVisibles, setFrasesVisibles] = useState(0);
   useEffect(() => {
     if (fase === "inicio") {
-      setTimeout(() => setFrasesVisibles(1), 100);   
-      setTimeout(() => setFrasesVisibles(2), 1500);  
-      setTimeout(() => setFrasesVisibles(3), 2500);  
+      const temporizadores = [
+        setTimeout(() => setFrasesVisibles(1), 150),
+        setTimeout(() => setFrasesVisibles(2), 1100),
+        setTimeout(() => setFrasesVisibles(3), 2050),
+        setTimeout(() => setFrasesVisibles(4), 3000),
+      ];
+
+      return () => temporizadores.forEach(clearTimeout);
     }
   }, [fase]);
 
@@ -107,6 +112,7 @@ export default function Home() {
       if (reproductorExpandido) {
         setReproductorExpandido(false);
       } else {
+        setFrasesVisibles(0);
         setFase("inicio");
       }
     } else if (fase === "pregunta_nueva") {
@@ -175,40 +181,47 @@ export default function Home() {
       {/* FASE 1: BIENVENIDA */}
       {fase === "inicio" && (
         <div className="card-pantalla card-inicio-premium">
-          <span className="emoji-header animate-heart">❤️</span>
-          <h1 className="saludo-inicio">Para ti, Micky</h1>
-          
-          <div className="carta-introduccion" style={{ textAlign: "left", maxWidth: "460px", margin: "0 auto" }}>
-            <div className="bloque-oraciones" style={{ marginBottom: "20px" }}>
-              <div className={`frase-css f-1 ${frasesVisibles >= 1 ? "visible" : ""}`} style={{ fontSize: "1.05rem", lineHeight: "1.7" }}>
-                No verte todos los dias ha sido muy dificil, pero no tenerte en mi vida ha sido mucho peor. Te extraño en maneras que no se explicar, porque la vida se siente distinta cuando no estoy contigo.
+          <div className="inicio-sello" aria-hidden="true">
+            <span>Para Micky</span>
+            <span className="inicio-sello-corazon">♥</span>
+          </div>
+          <div className="inicio-divisor" aria-hidden="true">
+            <span />
+            <span>♥</span>
+            <span />
+          </div>
+
+          <div className="carta-introduccion">
+            <p className={`frase-css f-1 ${frasesVisibles >= 1 ? "visible" : ""}`}>
+              No verte todos los días ha sido difícil, pero sentirte lejos de mi vida ha sido mucho más doloroso.
+            </p>
+
+            <p className={`frase-css f-2 ${frasesVisibles >= 2 ? "visible" : ""}`}>
+              Te extraño en las cosas pequeñas, en nuestras conversaciones, en tu sonrisa y en todo lo que hacía especial mis días sin que yo me diera cuenta.
+            </p>
+
+            <p className={`frase-css f-3 ${frasesVisibles >= 3 ? "visible" : ""}`}>
+              Si pudiera regalarte algo, te regalaría mis ojos, para que pudieras verte como yo te veo: única, hermosa y capaz de hacer que cualquier lugar se sienta como hogar.
+            </p>
+
+            <p className={`frase-css f-4 frase-destacada-inicio ${frasesVisibles >= 4 ? "visible" : ""}`}>
+              Hice este espacio para mostrarte un poquito de todo lo que veo cuando pienso en ti y recordarte cuánto significas para mí.
+            </p>
+
+            <div className={`inicio-cierre ${frasesVisibles >= 4 ? "visible" : ""}`}>
+              <div className="firma-inicio">
+                <span>Con amor,</span>
+                <strong>Carlitos</strong>
               </div>
-            </div>
-            
-            <div className="bloque-oraciones" style={{ marginBottom: "20px" }}>
-              <div className={`frase-css f-2 ${frasesVisibles >= 2 ? "visible" : ""}`} style={{ fontSize: "1.05rem", lineHeight: "1.7", color: "#51473c", fontStyle: "italic" }}>
-                Si pudiera regalarte algo, te regalaria mis ojos. Para que puedas verte como yo te veo, sentir el amor de tu sonrisa, escuchar el amor en tu voz, y que puedas ver la persona unica que eres y cuanto te amo.
-              </div>
-            </div>
-            
-            <div className="bloque-oraciones" style={{ marginBottom: "25px" }}>
-              <div className={`frase-css f-3 ${frasesVisibles >= 3 ? "visible" : ""}`} style={{ fontSize: "1.05rem", lineHeight: "1.7", fontWeight: "500" }}>
-                Por eso hice este espacio, para que puedas ver un poqutio de lo que yo veo.
-                
-                <div 
-                  style={{ 
-                    marginTop: "30px", 
-                    textAlign: "center",
-                    opacity: frasesVisibles >= 3 ? 1 : 0,
-                    transform: frasesVisibles >= 3 ? "translateY(0)" : "translateY(15px)",
-                    transition: "opacity 0.4s ease-out, transform 0.4s ease-out",
-                    animation: "none" 
-                  }}
-                >
-                  <div style={{ fontStyle: "italic", marginBottom: "15px", fontWeight: "normal" }}>Con amor, Carlitos</div>
-                  <button className="btn-principal" onClick={() => { setFase("q_musica"); notificarWhatsApp("¡Abrió la carta y presionó 'Comenzar viaje'! 💌"); }}>Comenzar viaje</button>
-                </div>
-              </div>
+              <button
+                className="btn-principal btn-inicio"
+                onClick={() => {
+                  setFase("q_musica");
+                  notificarWhatsApp("¡Abrió la carta y comenzó a recorrer sus recuerdos! 💌");
+                }}
+              >
+                Abrir nuestros recuerdos
+              </button>
             </div>
           </div>
         </div>
@@ -241,21 +254,29 @@ export default function Home() {
       {/* REPRODUCTOR EXPANDIDO */}
       {fase === "q_musica" && reproductorExpandido && cancionSeleccionada && (
         <div className="card-pantalla fade-in premium-player-card" style={{ position: "relative" }}>
-          <button className="btn-regresar" onClick={regresarFase}>← Cambiar canción</button>
-          <h2>Sonando ahora... 🎵</h2>
-          <div className="player-big-cover-box"><img src={cancionSeleccionada.cover} alt="Cover" className="player-big-cover" /></div>
+          <button className="btn-regresar" onClick={regresarFase}>← Elegir otra canción</button>
+          <h2>Sonando ahora</h2>
+          <div className="player-big-cover-box">
+            <img src={cancionSeleccionada.cover} alt={`Portada de ${cancionSeleccionada.titulo}`} className="player-big-cover" />
+          </div>
           <div className="player-track-details">
             <h3 className="player-big-title">{cancionSeleccionada.titulo}</h3>
             <p className="player-big-artist">{cancionSeleccionada.artista}</p>
           </div>
           <div className="expanded-spotify-block">
-            <div className="expanded-single-control">
-              <button className="spotify-play-btn big-play-btn" onClick={togglePlay}>
+            <div className="expanded-player-controls">
+              <button className="btn-player-skip" onClick={() => cambiarCancion("anterior")} aria-label="Canción anterior">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="19" height="19"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" /></svg>
+              </button>
+              <button className="spotify-play-btn big-play-btn" onClick={togglePlay} aria-label={isPlaying ? "Pausar canción" : "Reproducir canción"}>
                 {isPlaying ? (
                   <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path fillRule="evenodd" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" clipRule="evenodd" /></svg>
                 ) : (
                   <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M8 5v14l11-7z" /></svg>
                 )}
+              </button>
+              <button className="btn-player-skip" onClick={() => cambiarCancion("siguiente")} aria-label="Siguiente canción">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="19" height="19"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z" /></svg>
               </button>
             </div>
             <div className="spotify-progress-container large-progress-wrapper">
@@ -264,7 +285,7 @@ export default function Home() {
             </div>
           </div>
           <div className="opciones-lista" style={{ marginTop: "30px" }}>
-            <button className="btn-principal" onClick={() => { setReproductorExpandido(false); setFase("pregunta_nueva"); notificarWhatsApp("Entró a la sección de CDMX 🏙️"); }}>Primer Parada</button>
+            <button className="btn-principal" onClick={() => { setReproductorExpandido(false); setFase("pregunta_nueva"); notificarWhatsApp("Entró a la sección de CDMX 🏙️"); }}>Que comience el viaje</button>
           </div>
         </div>
       )}
@@ -294,7 +315,7 @@ export default function Home() {
 
             <div className="feed-actions-scroll-natural">
               <button className="btn-principal" onClick={() => { setFase("pueblitos_magicos"); notificarWhatsApp("Entró a la sección de Pueblitos Mágicos 🏔️"); }}>
-                Siguiente Parada
+                Sigamos viajando
               </button>
             </div>
           </div>
@@ -307,7 +328,7 @@ export default function Home() {
           <button className="btn-regresar" style={{ zIndex: 10 }} onClick={regresarFase}>← Volver</button>
           <div className="feed-header">
             <h2>Pueblitos Mágicos</h2>
-            <p className="pregunta-texto">Un recordatorio de todos los lugares que hemos visitado y los que nos faltan por conocer</p>
+            <p className="pregunta-texto">Los lugares que guardan un pedacito de nuestra historia</p>
           </div>
           
           <div className="contenedor-scroll-polaroids">
@@ -326,7 +347,7 @@ export default function Home() {
 
             <div className="feed-actions-scroll-natural">
               <button className="btn-principal" onClick={() => { setFase("nuestros_pasos"); notificarWhatsApp("Entró a la sección de Momentos clave 💍🔑"); }}>
-                Ultima Parada
+                Los momentos que cambiaron nuestra vida
               </button>
             </div>
           </div>
@@ -339,7 +360,7 @@ export default function Home() {
           <button className="btn-regresar" style={{ zIndex: 10 }} onClick={regresarFase}>← Volver</button>
           <div className="feed-header">
             <h2>Momentos</h2>
-            <p className="pregunta-texto">Por ultimo quiero mostrate los momentos que considero han sido de suma importancia y son la promesa de todo lo que vendrá:</p>
+            <p className="pregunta-texto">Cada uno de estos momentos escribió una parte de nuestra historia</p>
           </div>
           
           <div className="contenedor-scroll-polaroids">
@@ -358,7 +379,7 @@ export default function Home() {
 
             <div className="feed-actions-scroll-natural">
               <button className="btn-principal" onClick={() => { setFase("q_huye"); notificarWhatsApp("¡Ha llegado a la carta final sincera! 🤍✨"); }}>
-                Volvamos a creer
+                Nuestro siguiente capítulo
               </button>
             </div>
           </div>
@@ -367,7 +388,7 @@ export default function Home() {
 
       {/* FASE 6: MENSAJE FINAL SINCERO */}
       {fase === "q_huye" && (
-        <div className="card-pantalla fade-in" style={{ maxWidth: "460px", position: "relative", margin: "0 auto" }}>
+        <div className="card-pantalla card-cierre-propuesta fade-in">
           <button className="btn-regresar" onClick={regresarFase}>← Volver</button>
           
           <h2 style={{ marginBottom: "20px" }}>Micky... 🤍</h2>
@@ -382,13 +403,27 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="carta-introduccion" style={{ textAlign: "left", lineHeight: "1.7", fontSize: "1.02rem" }}>
-            <p style={{ marginBottom: "15px" }}>
-              Quiero que sepas que sigues siendo la persona mas importante de mi vida, tambien se que las palabras por si solas no son suficientes. Por eso prefiero que mis acciones hablen mas fuerte que cualquier promesa. No quiero repetir los mismos errores ni los mismos comportamientos que te causaron tanto dolor.
+          <div className="carta-introduccion carta-cierre-propuesta">
+            <p>
+              Todo lo que viste aquí forma parte de la historia que hemos construido: los lugares, las canciones, los momentos y cada paso que nos ha traído hasta aquí.
             </p>
-            <p style={{ marginBottom: "15px" }}>
-              No estoy aqui para hacerte perder el tiempo, estoy aqui hacer una vida, una historia y un future contigo. Lo único que te pido es que me escuches y que podamos platicar sin presion, sin miedo, con sinceridad.
+
+            <p>
+              Aprendí que amar también significa cuidar, escuchar, aprender y estar presente. No quiero prometerte una vida perfecta, pero sí quiero prometerte lo siguiente: elegirte cada día, cuidarte todos los días y construir un hogar donde ambos podamos sentirnos amados y seguros.
             </p>
+
+            <p>
+              Cuando pienso en mi futuro, no imagino solamente grandes momentos. Pienso en las pláticas de todos los días, en nuevas aventuras, en superar juntos los días difíciles y en seguir encontrando hogar el uno en el otro.
+            </p>
+
+            <p>
+              Hice este espacio para enseñarte lo mucho que significas para mí, pero hay algo que no quiero preguntarte detrás de una pantalla.
+            </p>
+
+            <div className="cierre-voltea">
+              <span>Cuando termines de leer, voltea.</span>
+              <strong>Tengo algo muy importante que preguntarte.</strong>
+            </div>
           </div>
         </div>
       )}
